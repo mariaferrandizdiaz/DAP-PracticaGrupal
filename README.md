@@ -1,6 +1,9 @@
 <h1 align="center">DapFlix</h1>
 
-## 💻 Descripción del proyecto 
+## 💻 Descripción del proyecto
+
+Este proyecto se basa en usar el **Patrón Observador** para poder crear un sistema de notificaciones para series y películas de distintas plataformas y cines.
+
 ## 👨‍💻 Miembros del equipo
 
 - Javier González de la Barreda Arimany - alu0101349077@ull.edu.es
