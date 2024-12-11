@@ -22,4 +22,24 @@ En este proyecto se ha desarrollado un sistema que permite suscribirte a distint
 - Interfaz gráfica para visualizar a modo de suscripción películas de cartelera.
 - Patrón Observador: Las plataformas notifican de si hay actualización.
 
+## Ejecución
+
+### Librerías
+
+Las librerías utilizadas para el proyecto son:
+
+- Selenium - WebScraping de la cartelera Yelmo
+- Gson - Consumo de JSON para la api TMDB
+
+Ambas se encuentran disponibles en la carpeta de recursos y deben ser importadas al ide local en el que se utilice.
+
+El uso de la librería Selenium implica la necesidad de utilizar drivers de navegador, por ello hemos utilizado Chrome como referencia. Para utilizarlo deberás localizar el driver en la carpeta resources para la arquitectura de tu dispositivo y situar la ruta en la clase YelmoCines - DriverPath.
+
+- chromedriver-mac-arm64
+- chromedriver-mac-x86
+- chromedriver-win64
+- chromeDriver-linux64
+
+Enlace a los drivers [ChromeDriver](https://github.com/dreamshao/chromedriver/tree/main)
+
 ## 🌐 Referencias

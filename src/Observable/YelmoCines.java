@@ -25,7 +25,7 @@ public class YelmoCines implements Observable {
 
     public YelmoCines(String city){
         this.city = city;
-        yelmo = new MovieScrapper("C:\\Users\\Dani\\Uni\\Libraries\\chromedriver-win64\\chromedriver.exe",baseUrl);
+        yelmo = new MovieScrapper("PATH AL DRIVER",baseUrl);
         this.observers = new ArrayList<>();
         this.lastFetchedMovies = new ArrayList<>();
         this.scheduler = Executors.newScheduledThreadPool(1);
