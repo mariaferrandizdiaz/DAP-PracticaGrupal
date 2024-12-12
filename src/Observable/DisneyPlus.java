@@ -29,7 +29,8 @@ public class DisneyPlus implements Observable {
 
     @Override
     public void notifyObservers() {
-        for(Observer o : observers) o.update(fetchMovies());
+        List<Movie> movies = fetchMovies();
+        for(Observer o : observers) o.update(movies);
     }
 
     @Override
@@ -43,22 +44,21 @@ public class DisneyPlus implements Observable {
     }
 
     @Override
-    public void startAutoReload(int intervalMinutes) {
+    public void startAutoReload(int intervalSeconds) {
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                System.out.println("Updating disney...");
-                List<Movie> newMovies = fetchMovies();
-                notifyObservers(); // Notifica a los observadores
+                System.out.println( "\u001B[36m" + "Updating Disney+..." + "\u001B[0m");
+                if(!observers.isEmpty())  notifyObservers(); // Notifica a los observadores
                 /*
+                List<Movie> newMovies = fetchMovies();
                 if (isUpdated(newMovies)) {
                     lastFetchedMovies = new ArrayList<>(newMovies); // Actualiza la lista de películas
                     notifyObservers(); // Notifica a los observadores
-                }
-                 */
+                }*/
             } catch (Exception e) {
                 e.printStackTrace(); // Maneja errores (ej. API caída)
             }
-        }, 0, intervalMinutes, TimeUnit.SECONDS);
+        }, 0, intervalSeconds, TimeUnit.SECONDS);
     }
 
     @Override

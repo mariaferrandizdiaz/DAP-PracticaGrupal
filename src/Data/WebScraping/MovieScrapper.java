@@ -44,8 +44,7 @@ public class MovieScrapper {
                 String titulo = elemento.findElement(By.tagName("h3")).getText();
                 String clasificacion = elemento.findElement(By.className("clasificacion")).getText();
                 String imagenUrl = elemento.findElement(By.tagName("img")).getAttribute("src");
-
-                movies.add(new Movie(titulo, clasificacion, imagenUrl));
+                if (titulo != "") movies.add(new Movie(titulo, clasificacion, imagenUrl));
             }
 
         } finally {

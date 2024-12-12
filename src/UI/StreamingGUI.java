@@ -11,6 +11,8 @@ import Observer.User;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,6 @@ public class StreamingGUI {
             }
         });
 
-
         JButton openUserButton = new JButton("Abrir Usuario");
         openUserButton.addActionListener(e -> {
             String selectedUser = userList.getSelectedValue();
@@ -96,6 +97,9 @@ public class StreamingGUI {
 
         JPanel controlPanel = createControlPanel(userName, users.get(userName));
 
+        JLabel lastUpdateLabel = new JLabel("Última actualización: " + getCurrentTimestamp());
+        controlPanel.add(lastUpdateLabel);
+
         userFrame.getContentPane().add(controlPanel, BorderLayout.NORTH);
         userFrame.getContentPane().add(new JScrollPane(moviesPanel), BorderLayout.CENTER);
 
@@ -108,8 +112,19 @@ public class StreamingGUI {
                 userWindows.remove(userName);
             }
         });
-    }
 
+        // Actualiza la etiqueta cada vez que hay cambios en el contenido
+        Timer updateTimer = new Timer(30000, e -> lastUpdateLabel.setText("Última actualización: " + getCurrentTimestamp()));
+        updateTimer.start();
+
+        userFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                updateTimer.stop();
+                userWindows.remove(userName);
+            }
+        });
+    }
 
     private static JPanel createControlPanel(String userName, User user) {
         JPanel panel = new JPanel(new FlowLayout());
@@ -129,6 +144,11 @@ public class StreamingGUI {
                     JOptionPane.showMessageDialog(null, "Suscrito a " + name);
                 } else {
                     service.unsubscribe(user);
+                    JFrame userFrame = userWindows.get(user.getId());
+                    JScrollPane scrollPane = (JScrollPane) userFrame.getContentPane().getComponent(1);
+                    JPanel moviesPanel = (JPanel) scrollPane.getViewport().getView();
+                    moviesPanel.removeAll();
+                    moviesPanel.repaint();
                     System.out.println("Desuscrito: " + user.getId() + " del servicio " + name);
                     System.out.println("Usuarios suscritos en " + name + ": " + service.getSubscribers());
                     JOptionPane.showMessageDialog(null, "Desuscrito de " + name);
@@ -140,12 +160,11 @@ public class StreamingGUI {
         return panel;
     }
 
-
     private static JPanel createMoviesPanel() {
         return new JPanel(new GridLayout(0, 4, 10, 10));
     }
 
-    public static void updateMoviesForUser(String userName, List<Movie> movies) {
+    public static void updateMoviesForUser(String userName, List<Movie> newMovies) {
         JFrame userFrame = userWindows.get(userName);
         if (userFrame == null) {
             return;
@@ -154,18 +173,38 @@ public class StreamingGUI {
         JScrollPane scrollPane = (JScrollPane) userFrame.getContentPane().getComponent(1);
         JPanel moviesPanel = (JPanel) scrollPane.getViewport().getView();
 
-        System.out.println("Número de películas para mostrar: " + movies.size());
-        moviesPanel.removeAll();
-
-        for (Movie movie : movies) {
-            JPanel moviePanel = createMoviePanel(movie);
-            moviesPanel.add(moviePanel);
+        // Map para comparar las películas actuales con las nuevas
+        Map<String, JPanel> currentMoviesMap = new HashMap<>();
+        for (Component component : moviesPanel.getComponents()) {
+            if (component instanceof JPanel moviePanel) {
+                String movieId = (String) moviePanel.getClientProperty("movieId");
+                if (movieId != null) {
+                    currentMoviesMap.put(movieId, moviePanel);
+                }
+            }
         }
 
+        // Actualiza o agrega nuevas películas
+        for (Movie newMovie : newMovies) {
+            String movieId = newMovie.getTitulo();
+            if (currentMoviesMap.containsKey(movieId)) {
+                // Si la película ya existe, puedes decidir si actualizar o no
+                JPanel existingPanel = currentMoviesMap.get(movieId);
+                // Aquí puedes actualizar el panel si el contenido cambió
+                updateMoviePanel(existingPanel, newMovie);
+                currentMoviesMap.remove(movieId); // Elimina de la lista de actuales
+            } else {
+                // Si es una película nueva, la agregas
+                JPanel newMoviePanel = createMoviePanel(newMovie);
+                newMoviePanel.putClientProperty("movieId", movieId); // Asigna el ID
+                moviesPanel.add(newMoviePanel);
+            }
+        }
+
+        // Refresca el panel
         moviesPanel.revalidate();
         moviesPanel.repaint();
     }
-
 
     private static JPanel createMoviePanel(Movie movie) {
         JPanel panel = new JPanel(new BorderLayout());
@@ -181,5 +220,31 @@ public class StreamingGUI {
         panel.add(titleLabel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    private static void updateMoviePanel(JPanel moviePanel, Movie movie) {
+
+        Component[] components = moviePanel.getComponents();
+
+        if (components.length > 0 && components[0] instanceof JLabel posterLabel) {
+            try {
+                // Actualiza la imagen del póster
+                ImageIcon newPosterIcon = new ImageIcon(new URL(movie.getImagenUrl()));
+                posterLabel.setIcon(new ImageIcon(newPosterIcon.getImage().getScaledInstance(120, 180, Image.SCALE_SMOOTH)));
+            } catch (Exception e) {
+                posterLabel.setIcon(new ImageIcon());
+                posterLabel.setText("Sin Imagen");
+            }
+        }
+
+        if (components.length > 1 && components[1] instanceof JLabel titleLabel) {
+            // Actualiza el título
+            titleLabel.setText("<html><center>" + movie.getTitulo() + "</center></html>");
+        }
+    }
+
+    private static String getCurrentTimestamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(new Date());
     }
 }

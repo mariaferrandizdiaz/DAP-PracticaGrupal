@@ -15,7 +15,7 @@ public class User implements Observer {
 
     @Override
     public void update(List<Movie> movies) {
-        System.out.println("Recibidas nuevas películas para " + name);
+        System.out.println("Nueva notificacion: " + name);
         SwingUtilities.invokeLater(() -> StreamingGUI.updateMoviesForUser(name, movies));
     }
 

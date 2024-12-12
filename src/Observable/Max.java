@@ -30,12 +30,8 @@ public class Max implements Observable {
 
     @Override
     public void notifyObservers() {
-        for (Observer o : observers) {
-            System.out.println("Notificando a: " + o.getId());
-            List<Movie> movies = fetchMovies();
-            System.out.println("Películas a enviar: " + movies);
-            o.update(movies);
-        }
+        List<Movie> movies = fetchMovies();
+        for (Observer o : observers) o.update(movies);
     }
 
     @Override
@@ -49,22 +45,21 @@ public class Max implements Observable {
     }
 
     @Override
-    public void startAutoReload(int intervalMinutes) {
+    public void startAutoReload(int intervalSeconds) {
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                System.out.println("Updating max...");
-                List<Movie> newMovies = fetchMovies();
-                notifyObservers(); // Notifica a los observadores
+                System.out.println( "\u001B[35m" + "Updating Max..." + "\u001B[0m");
+                if (!observers.isEmpty()) notifyObservers(); // Notifica a los observadores
                 /*
+                List<Movie> newMovies = fetchMovies();
                 if (isUpdated(newMovies)) {
                     lastFetchedMovies = new ArrayList<>(newMovies); // Actualiza la lista de películas
                     notifyObservers(); // Notifica a los observadores
-                }
-                 */
+                }*/
             } catch (Exception e) {
                 e.printStackTrace(); // Maneja errores (ej. API caída)
             }
-        }, 0, intervalMinutes, TimeUnit.SECONDS);
+        }, 0, intervalSeconds, TimeUnit.SECONDS);
     }
 
     @Override

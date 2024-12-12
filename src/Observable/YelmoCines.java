@@ -20,12 +20,12 @@ public class YelmoCines implements Observable {
     MovieScrapper yelmo;
 
     public YelmoCines(){
-        this("santa-cruz-tenerife");
+        this("santa-cruz-tenerife/meridiano");
     }
 
     public YelmoCines(String city){
         this.city = city;
-        yelmo = new MovieScrapper("PATH AL DRIVER",baseUrl);
+        yelmo = new MovieScrapper("resources/chromedriver-mac-x64/chromedriver",baseUrl);
         this.observers = new ArrayList<>();
         this.lastFetchedMovies = new ArrayList<>();
         this.scheduler = Executors.newScheduledThreadPool(1);
@@ -38,7 +38,8 @@ public class YelmoCines implements Observable {
 
     @Override
     public void notifyObservers() {
-        for(Observer o : observers) o.update(fetchMovies());
+        List<Movie> movies = fetchMovies();
+        for(Observer o : observers) o.update(movies);
     }
 
     @Override
@@ -52,23 +53,21 @@ public class YelmoCines implements Observable {
     }
 
     @Override
-    public void startAutoReload(int intervalMinutes) {
+    public void startAutoReload(int intervalSeconds) {
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                System.out.println("Updating yelmo...");
-                List<Movie> newMovies = fetchMovies();
-                notifyObservers(); // Notifica a los observadores
+                System.out.println( "\u001B[34m" + "Updating yelmo..." + "\u001B[0m");
+                if (!observers.isEmpty()) notifyObservers(); // Notifica a los observadores
                 /*
+                List<Movie> newMovies = fetchMovies();
                 if (isUpdated(newMovies)) {
                     lastFetchedMovies = new ArrayList<>(newMovies); // Actualiza la lista de películas
-
-                }
-
-                 */
+                    notifyObservers(); // Notifica a los observadores
+                }*/
             } catch (Exception e) {
                 e.printStackTrace(); // Maneja errores (ej. API caída)
             }
-        }, 0, intervalMinutes, TimeUnit.SECONDS);
+        }, 0, intervalSeconds, TimeUnit.SECONDS);
     }
 
     @Override

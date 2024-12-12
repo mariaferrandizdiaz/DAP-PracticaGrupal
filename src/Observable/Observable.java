@@ -10,7 +10,7 @@ public interface Observable {
     void unsubscribe(Observer observer);
     void notifyObservers();
     List<Movie> fetchMovies();
-    void startAutoReload(int intervalMinutes);
+    void startAutoReload(int intervalSeconds);
     void stopAutoReload();
     boolean isUpdated(List<Movie> newMovies);
     String getSubscribers();
